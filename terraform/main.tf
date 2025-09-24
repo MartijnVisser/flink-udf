@@ -139,6 +139,9 @@ resource "confluent_flink_statement" "create_function" {
   compute_pool {
     id = var.compute_pool_id
   }
+  principal {
+    id = "u-75q0kj"
+  }
   rest_endpoint = local.flink_rest_endpoint
   credentials {
     key    = var.flink_api_key
@@ -167,6 +170,9 @@ resource "confluent_flink_statement" "custom_tax_demo" {
   }
   compute_pool {
     id = var.compute_pool_id
+  }
+  principal {
+    id = "u-75q0kj"
   }
   rest_endpoint = local.flink_rest_endpoint
   credentials {
