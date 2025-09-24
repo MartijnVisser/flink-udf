@@ -9,11 +9,8 @@ terraform {
 
 # Configure the Confluent Provider
 provider "confluent" {
-  cloud_api_key         = var.confluent_cloud_api_key
-  cloud_api_secret      = var.confluent_cloud_api_secret
-  organization_id       = var.organization_id
-  environment_id        = var.environment_id
-  flink_compute_pool_id = var.compute_pool_id
+  cloud_api_key    = var.confluent_cloud_api_key
+  cloud_api_secret = var.confluent_cloud_api_secret
 }
 
 # Variables for Confluent Cloud configuration
@@ -121,6 +118,12 @@ locals {
 
 # Register the UDF function
 resource "confluent_flink_statement" "create_function" {
+  environment {
+    id = var.environment_id
+  }
+  compute_pool {
+    id = var.compute_pool_id
+  }
   statement = "CREATE FUNCTION CustomTax AS 'com.example.flink.udf.CustomTax' USING JAR 'confluent-artifact://${local.artifact_id}';"
   properties = {
     "sql.current-catalog"  = var.current_catalog
@@ -136,6 +139,12 @@ resource "confluent_flink_statement" "create_function" {
 
 # Deploy the Flink SQL statement
 resource "confluent_flink_statement" "custom_tax_demo" {
+  environment {
+    id = var.environment_id
+  }
+  compute_pool {
+    id = var.compute_pool_id
+  }
   statement = file("${path.module}/../sql/custom_tax_demo.sql")
   properties = {
     "sql.current-catalog"  = var.current_catalog
