@@ -2,7 +2,7 @@ terraform {
   required_providers {
     confluent = {
       source  = "confluentinc/confluent"
-      version = "~> 1.0"
+      version = "~> 2.0"
     }
   }
 }
@@ -71,41 +71,40 @@ variable "cloud_provider" {
   default     = "aws"
 }
 
-variable "region" {
-  description = "Cloud region (e.g., eu-west-1)"
+variable "artifact_version" {
+  description = "Version of the UDF artifact"
   type        = string
-  default     = "eu-west-1"
+  default     = "1.0.0"
 }
 
 # Deploy the Flink UDF artifact
 resource "confluent_flink_artifact" "custom_tax_udf" {
-  display_name = "CustomTax UDF"
-  description  = "A scalar function that calculates custom tax based on location"
+  cloud          = var.cloud_provider
+  region         = var.region
+  display_name   = "CustomTax UDF"
+  content_format = "JAR"
+  artifact_file  = "${path.module}/../target/flink-udf-${var.artifact_version}.jar"
 
-  file_name     = "flink-udf-1.0.0.jar"
-  artifact_type = "JAR"
+  environment {
+    id = var.environment_id
+  }
 
-  compute_pool_id = var.compute_pool_id
-  environment_id  = var.environment_id
-
-  # The JAR file will be uploaded via GitHub Actions
-  # This resource will be created after the artifact is built and uploaded
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # Deploy the Flink SQL statement
 resource "confluent_flink_statement" "custom_tax_demo" {
-  name      = "CustomTax Demo Statement"
-  statement = file("${path.module}/../sql/custom_tax_demo.sql")
-
-  compute_pool_id = var.compute_pool_id
-  environment_id  = var.environment_id
-
-  # Properties for the Flink statement
-  properties = {
-    "execution.checkpointing.interval" = "60s"
-    "execution.checkpointing.mode"     = "EXACTLY_ONCE"
-    "execution.runtime-mode"           = "STREAMING"
+  environment {
+    id = var.environment_id
   }
+  compute_pool {
+    id = var.compute_pool_id
+  }
+  name        = "CustomTax Demo Statement"
+  description = "Flink SQL statement demonstrating the CustomTax UDF"
+  statement   = file("${path.module}/../sql/custom_tax_demo.sql")
 
   depends_on = [confluent_flink_artifact.custom_tax_udf]
 }

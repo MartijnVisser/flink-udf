@@ -83,6 +83,7 @@ Before deploying, you need to configure the following GitHub Secrets in your rep
 - `COMPUTE_POOL_ID`: Your Flink compute pool ID
 - `CLOUD_PROVIDER`: Cloud provider (default: "aws")
 - `REGION`: Cloud region (default: "eu-west-1")
+- `ARTIFACT_VERSION`: Version of the UDF artifact (default: "1.0.0")
 
 ### Setting up GitHub Secrets
 
@@ -96,10 +97,12 @@ The GitHub Actions workflow automatically:
 
 1. **Builds** the UDF JAR artifact using Maven
 2. **Tests** the code with unit tests
-3. **Deploys** the UDF to Confluent Cloud using Terraform
-4. **Runs** the Flink SQL statement that demonstrates the UDF
+3. **Deploys** the UDF artifact using Terraform (`confluent_flink_artifact`)
+4. **Creates** the Flink SQL statement using Terraform (`confluent_flink_statement`)
 
 The deployment is triggered on pushes to the `main` branch.
+
+**✅ Fully Automated via Terraform**: The UDF artifact and SQL statement are deployed using the Confluent Terraform provider resources.
 
 ### Manual Deployment
 

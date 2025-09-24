@@ -76,6 +76,7 @@ jobs:
         cat > terraform/terraform.tfvars << EOF
         cloud_provider = "${{ vars.CLOUD_PROVIDER || 'aws' }}"
         region = "${{ vars.REGION || 'eu-west-1' }}"
+        artifact_version = "${{ vars.ARTIFACT_VERSION || '1.0.0' }}"
         organization_id = "${{ vars.ORGANIZATION_ID }}"
         environment_id = "${{ vars.ENVIRONMENT_ID }}"
         compute_pool_id = "${{ vars.COMPUTE_POOL_ID }}"
@@ -96,19 +97,14 @@ jobs:
       run: terraform apply -auto-approve
       working-directory: terraform/
       
-    - name: Upload UDF to Confluent Cloud
-      run: |
-        # Upload the JAR file to Confluent Cloud
-        # This step would typically use the Confluent CLI or API
-        echo "Uploading UDF artifact to Confluent Cloud..."
-        # Note: The actual upload mechanism depends on Confluent Cloud's API
-        # This is a placeholder for the upload process
-        
     - name: Output deployment results
       run: |
         echo "Deployment completed successfully!"
         echo "Artifact ID: $(terraform output -raw artifact_id)"
         echo "Statement ID: $(terraform output -raw statement_id)"
+        echo ""
+        echo "✅ UDF artifact and SQL statement deployed via Terraform!"
+        echo "You can now view your Flink statement in the Confluent Cloud UI."
       working-directory: terraform/
 
   test:
