@@ -104,7 +104,8 @@ jobs:
       run: |
         echo "Deployment completed successfully!"
         echo "Artifact ID: $(terraform output -raw artifact_id)"
-        echo "Function Statement ID: $(terraform output -raw function_statement_id)"
+        echo "Drop Function Statement ID: $(terraform output -raw drop_function_statement_id)"
+        echo "Create Function Statement ID: $(terraform output -raw function_statement_id)"
         echo "Demo Statement ID: $(terraform output -raw demo_statement_id)"
         echo ""
         echo "✅ UDF artifact uploaded and SQL statements created!"

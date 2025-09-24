@@ -128,6 +128,38 @@ locals {
   flink_rest_endpoint = var.flink_rest_endpoint != "" ? var.flink_rest_endpoint : "https://flink.${var.region}.${var.cloud_provider}.confluent.cloud"
 }
 
+# Drop the UDF function if it exists
+resource "confluent_flink_statement" "drop_function" {
+  organization {
+    id = var.organization_id
+  }
+  environment {
+    id = var.environment_id
+  }
+  compute_pool {
+    id = var.compute_pool_id
+  }
+  principal {
+    id = "u-75q0kj"
+  }
+  rest_endpoint = local.flink_rest_endpoint
+  credentials {
+    key    = var.flink_api_key
+    secret = var.flink_api_secret
+  }
+  statement = "DROP FUNCTION IF EXISTS CustomTax"
+  properties = {
+    "sql.current-catalog"  = var.current_catalog
+    "sql.current-database" = var.current_database
+  }
+
+  depends_on = [confluent_flink_artifact.custom_tax_udf]
+
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
 # Register the UDF function
 resource "confluent_flink_statement" "create_function" {
   organization {
@@ -147,13 +179,13 @@ resource "confluent_flink_statement" "create_function" {
     key    = var.flink_api_key
     secret = var.flink_api_secret
   }
-  statement = "CREATE FUNCTION CustomTax AS 'com.example.flink.udf.CustomTax' USING JAR 'confluent-artifact://${local.artifact_id}';"
+  statement = "CREATE FUNCTION CustomTax AS 'com.example.flink.udf.CustomTax' USING JAR 'confluent-artifact://${local.artifact_id}'"
   properties = {
     "sql.current-catalog"  = var.current_catalog
     "sql.current-database" = var.current_database
   }
 
-  depends_on = [confluent_flink_artifact.custom_tax_udf]
+  depends_on = [confluent_flink_statement.drop_function]
 
   lifecycle {
     prevent_destroy = true
@@ -196,6 +228,12 @@ resource "confluent_flink_statement" "custom_tax_demo" {
 output "artifact_id" {
   description = "The ID of the deployed Flink artifact"
   value       = confluent_flink_artifact.custom_tax_udf.id
+}
+
+# Output the drop function statement ID
+output "drop_function_statement_id" {
+  description = "The ID of the drop function statement"
+  value       = confluent_flink_statement.drop_function.id
 }
 
 # Output the function creation statement ID
