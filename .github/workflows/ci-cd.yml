@@ -77,6 +77,8 @@ jobs:
         cloud_provider = "${{ vars.CLOUD_PROVIDER || 'aws' }}"
         region = "${{ vars.REGION || 'eu-west-1' }}"
         artifact_version = "${{ vars.ARTIFACT_VERSION || '1.0.0' }}"
+        current_catalog = "${{ vars.CURRENT_CATALOG || 'mvisser' }}"
+        current_database = "${{ vars.CURRENT_DATABASE || 'standard_cluster' }}"
         organization_id = "${{ vars.ORGANIZATION_ID }}"
         environment_id = "${{ vars.ENVIRONMENT_ID }}"
         compute_pool_id = "${{ vars.COMPUTE_POOL_ID }}"
@@ -101,10 +103,11 @@ jobs:
       run: |
         echo "Deployment completed successfully!"
         echo "Artifact ID: $(terraform output -raw artifact_id)"
-        echo "Statement ID: $(terraform output -raw statement_id)"
+        echo "Function Statement ID: $(terraform output -raw function_statement_id)"
+        echo "Demo Statement ID: $(terraform output -raw demo_statement_id)"
         echo ""
-        echo "✅ UDF artifact and SQL statement deployed via Terraform!"
-        echo "You can now view your Flink statement in the Confluent Cloud UI."
+        echo "✅ UDF artifact uploaded and SQL statements created!"
+        echo "The CustomTax function is now available for use in Flink SQL."
       working-directory: terraform/
 
   test:

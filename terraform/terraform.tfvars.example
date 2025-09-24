@@ -9,6 +9,10 @@ region         = "eu-west-1"
 # Artifact configuration
 artifact_version = "1.0.0"
 
+# SQL configuration
+current_catalog = "mvisser"
+current_database = "standard_cluster"
+
 # Confluent Cloud IDs
 organization_id = "00000000-0000-0000-0000-000000000000"
 environment_id  = "env-xxxxx"

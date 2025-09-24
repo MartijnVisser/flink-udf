@@ -9,8 +9,11 @@ terraform {
 
 # Configure the Confluent Provider
 provider "confluent" {
-  cloud_api_key    = var.confluent_cloud_api_key
-  cloud_api_secret = var.confluent_cloud_api_secret
+  cloud_api_key         = var.confluent_cloud_api_key
+  cloud_api_secret      = var.confluent_cloud_api_secret
+  organization_id       = var.organization_id
+  environment_id        = var.environment_id
+  flink_compute_pool_id = var.compute_pool_id
 }
 
 # Variables for Confluent Cloud configuration
@@ -83,17 +86,48 @@ variable "artifact_version" {
   default     = "1.0.0"
 }
 
+variable "current_catalog" {
+  description = "Current catalog for Flink statements"
+  type        = string
+  default     = "mvisser"
+}
+
+variable "current_database" {
+  description = "Current database for Flink statements"
+  type        = string
+  default     = "standard_cluster"
+}
+
 # Deploy the Flink UDF artifact
 resource "confluent_flink_artifact" "custom_tax_udf" {
-  cloud          = var.cloud_provider
+  environment {
+    id = var.environment_id
+  }
   region         = var.region
+  cloud          = var.cloud_provider
   display_name   = "CustomTax UDF"
   content_format = "JAR"
   artifact_file  = "${path.module}/../target/flink-udf-${var.artifact_version}.jar"
 
-  environment {
-    id = var.environment_id
+  lifecycle {
+    prevent_destroy = true
   }
+}
+
+# Create locals for artifact reference
+locals {
+  artifact_id = confluent_flink_artifact.custom_tax_udf.id
+}
+
+# Register the UDF function
+resource "confluent_flink_statement" "create_function" {
+  statement = "CREATE FUNCTION CustomTax AS 'com.example.flink.udf.CustomTax' USING JAR 'confluent-artifact://${local.artifact_id}';"
+  properties = {
+    "sql.current-catalog"  = var.current_catalog
+    "sql.current-database" = var.current_database
+  }
+
+  depends_on = [confluent_flink_artifact.custom_tax_udf]
 
   lifecycle {
     prevent_destroy = true
@@ -102,15 +136,17 @@ resource "confluent_flink_artifact" "custom_tax_udf" {
 
 # Deploy the Flink SQL statement
 resource "confluent_flink_statement" "custom_tax_demo" {
-  environment {
-    id = var.environment_id
-  }
-  compute_pool {
-    id = var.compute_pool_id
-  }
   statement = file("${path.module}/../sql/custom_tax_demo.sql")
+  properties = {
+    "sql.current-catalog"  = var.current_catalog
+    "sql.current-database" = var.current_database
+  }
 
-  depends_on = [confluent_flink_artifact.custom_tax_udf]
+  depends_on = [confluent_flink_statement.create_function]
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # Output the artifact ID for reference
@@ -119,8 +155,14 @@ output "artifact_id" {
   value       = confluent_flink_artifact.custom_tax_udf.id
 }
 
-# Output the statement ID for reference
-output "statement_id" {
-  description = "The ID of the deployed Flink statement"
+# Output the function creation statement ID
+output "function_statement_id" {
+  description = "The ID of the function creation statement"
+  value       = confluent_flink_statement.create_function.id
+}
+
+# Output the demo statement ID for reference
+output "demo_statement_id" {
+  description = "The ID of the demo statement"
   value       = confluent_flink_statement.custom_tax_demo.id
 }

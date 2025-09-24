@@ -84,6 +84,8 @@ Before deploying, you need to configure the following GitHub Secrets in your rep
 - `CLOUD_PROVIDER`: Cloud provider (default: "aws")
 - `REGION`: Cloud region (default: "eu-west-1")
 - `ARTIFACT_VERSION`: Version of the UDF artifact (default: "1.0.0")
+- `CURRENT_CATALOG`: SQL catalog name (default: "mvisser")
+- `CURRENT_DATABASE`: SQL database name (default: "standard_cluster")
 
 ### Setting up GitHub Secrets
 
