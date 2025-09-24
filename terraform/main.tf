@@ -81,32 +81,32 @@ variable "region" {
 resource "confluent_flink_artifact" "custom_tax_udf" {
   display_name = "CustomTax UDF"
   description  = "A scalar function that calculates custom tax based on location"
-  
-  file_name = "flink-udf-1.0.0.jar"
+
+  file_name     = "flink-udf-1.0.0.jar"
   artifact_type = "JAR"
-  
+
   compute_pool_id = var.compute_pool_id
   environment_id  = var.environment_id
-  
+
   # The JAR file will be uploaded via GitHub Actions
   # This resource will be created after the artifact is built and uploaded
 }
 
 # Deploy the Flink SQL statement
 resource "confluent_flink_statement" "custom_tax_demo" {
-  name = "CustomTax Demo Statement"
+  name      = "CustomTax Demo Statement"
   statement = file("${path.module}/../sql/custom_tax_demo.sql")
-  
+
   compute_pool_id = var.compute_pool_id
   environment_id  = var.environment_id
-  
+
   # Properties for the Flink statement
   properties = {
     "execution.checkpointing.interval" = "60s"
     "execution.checkpointing.mode"     = "EXACTLY_ONCE"
     "execution.runtime-mode"           = "STREAMING"
   }
-  
+
   depends_on = [confluent_flink_artifact.custom_tax_udf]
 }
 
