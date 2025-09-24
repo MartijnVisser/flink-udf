@@ -73,7 +73,7 @@ jobs:
       
     - name: Create Terraform variables file
       run: |
-        cat > terraform/terraform.tfvars << EOF
+        cat > terraform.tfvars << EOF
         cloud_provider = "${{ vars.CLOUD_PROVIDER || 'aws' }}"
         region = "${{ vars.REGION || 'eu-west-1' }}"
         artifact_version = "${{ vars.ARTIFACT_VERSION || '1.0.0' }}"
