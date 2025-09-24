@@ -102,13 +102,18 @@ resource "confluent_flink_artifact" "custom_tax_udf" {
   }
   region         = var.region
   cloud          = var.cloud_provider
-  display_name   = "CustomTax UDF"
+  display_name   = "CustomTax UDF v${var.artifact_version}-${random_id.artifact_suffix.hex}"
   content_format = "JAR"
   artifact_file  = "${path.module}/../target/flink-udf-${var.artifact_version}.jar"
 
   lifecycle {
     prevent_destroy = true
   }
+}
+
+# Generate a random suffix for unique artifact naming
+resource "random_id" "artifact_suffix" {
+  byte_length = 4
 }
 
 # Create locals for artifact reference
