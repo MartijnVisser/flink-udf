@@ -95,6 +95,12 @@ variable "current_database" {
   default     = "standard_cluster"
 }
 
+variable "flink_rest_endpoint" {
+  description = "Flink REST endpoint (defaults to constructed URL)"
+  type        = string
+  default     = ""
+}
+
 # Deploy the Flink UDF artifact
 resource "confluent_flink_artifact" "custom_tax_udf" {
   environment {
@@ -116,9 +122,10 @@ resource "random_id" "artifact_suffix" {
   byte_length = 4
 }
 
-# Create locals for artifact reference
+# Create locals for artifact reference and Flink endpoint
 locals {
-  artifact_id = confluent_flink_artifact.custom_tax_udf.id
+  artifact_id         = confluent_flink_artifact.custom_tax_udf.id
+  flink_rest_endpoint = var.flink_rest_endpoint != "" ? var.flink_rest_endpoint : "https://flink.${var.region}.${var.cloud_provider}.confluent.cloud"
 }
 
 # Register the UDF function
@@ -128,6 +135,11 @@ resource "confluent_flink_statement" "create_function" {
   }
   compute_pool {
     id = var.compute_pool_id
+  }
+  rest_endpoint = local.flink_rest_endpoint
+  credentials {
+    key    = var.flink_api_key
+    secret = var.flink_api_secret
   }
   statement = "CREATE FUNCTION CustomTax AS 'com.example.flink.udf.CustomTax' USING JAR 'confluent-artifact://${local.artifact_id}';"
   properties = {
@@ -149,6 +161,11 @@ resource "confluent_flink_statement" "custom_tax_demo" {
   }
   compute_pool {
     id = var.compute_pool_id
+  }
+  rest_endpoint = local.flink_rest_endpoint
+  credentials {
+    key    = var.flink_api_key
+    secret = var.flink_api_secret
   }
   statement = file("${path.module}/../sql/custom_tax_demo.sql")
   properties = {

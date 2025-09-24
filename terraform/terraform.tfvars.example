@@ -13,6 +13,9 @@ artifact_version = "1.0.0"
 current_catalog = "mvisser"
 current_database = "standard_cluster"
 
+# Flink configuration (optional - will be auto-constructed if not provided)
+flink_rest_endpoint = ""
+
 # Confluent Cloud IDs
 organization_id = "00000000-0000-0000-0000-000000000000"
 environment_id  = "env-xxxxx"
