@@ -1,0 +1,22 @@
+# Terraform variables file
+# Copy this file to terraform.tfvars and fill in your actual values
+# DO NOT commit terraform.tfvars to version control
+
+# Cloud configuration
+cloud_provider = "aws"
+region         = "eu-west-1"
+
+# Confluent Cloud IDs
+organization_id = "00000000-0000-0000-0000-000000000000"
+environment_id  = "env-xxxxx"
+compute_pool_id = "lfcp-xxxxxxxxxx"
+
+# API Keys (these will be provided via GitHub Secrets)
+confluent_cloud_api_key    = "XXXXXXXXXXXXXXXX"
+confluent_cloud_api_secret = "XxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXx"
+
+flink_api_key    = "XXXXXXXXXXXXXXXX"
+flink_api_secret = "XxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXx"
+
+artifact_api_key    = "XXXXXXXXXXXXXXXX"
+artifact_api_secret = "XxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXxXx"

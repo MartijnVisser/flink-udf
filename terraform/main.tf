@@ -1,0 +1,123 @@
+terraform {
+  required_providers {
+    confluent = {
+      source  = "confluentinc/confluent"
+      version = "~> 1.0"
+    }
+  }
+}
+
+# Configure the Confluent Provider
+provider "confluent" {
+  cloud_api_key    = var.confluent_cloud_api_key
+  cloud_api_secret = var.confluent_cloud_api_secret
+}
+
+# Variables for Confluent Cloud configuration
+variable "confluent_cloud_api_key" {
+  description = "Confluent Cloud API Key"
+  type        = string
+  sensitive   = true
+}
+
+variable "confluent_cloud_api_secret" {
+  description = "Confluent Cloud API Secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "organization_id" {
+  description = "Confluent Cloud Organization ID"
+  type        = string
+}
+
+variable "environment_id" {
+  description = "Confluent Cloud Environment ID"
+  type        = string
+}
+
+variable "compute_pool_id" {
+  description = "Confluent Cloud Compute Pool ID"
+  type        = string
+}
+
+variable "flink_api_key" {
+  description = "Flink API Key"
+  type        = string
+  sensitive   = true
+}
+
+variable "flink_api_secret" {
+  description = "Flink API Secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "artifact_api_key" {
+  description = "Artifact API Key"
+  type        = string
+  sensitive   = true
+}
+
+variable "artifact_api_secret" {
+  description = "Artifact API Secret"
+  type        = string
+  sensitive   = true
+}
+
+variable "cloud_provider" {
+  description = "Cloud provider (e.g., aws)"
+  type        = string
+  default     = "aws"
+}
+
+variable "region" {
+  description = "Cloud region (e.g., eu-west-1)"
+  type        = string
+  default     = "eu-west-1"
+}
+
+# Deploy the Flink UDF artifact
+resource "confluent_flink_artifact" "custom_tax_udf" {
+  display_name = "CustomTax UDF"
+  description  = "A scalar function that calculates custom tax based on location"
+  
+  file_name = "flink-udf-1.0.0.jar"
+  artifact_type = "JAR"
+  
+  compute_pool_id = var.compute_pool_id
+  environment_id  = var.environment_id
+  
+  # The JAR file will be uploaded via GitHub Actions
+  # This resource will be created after the artifact is built and uploaded
+}
+
+# Deploy the Flink SQL statement
+resource "confluent_flink_statement" "custom_tax_demo" {
+  name = "CustomTax Demo Statement"
+  statement = file("${path.module}/../sql/custom_tax_demo.sql")
+  
+  compute_pool_id = var.compute_pool_id
+  environment_id  = var.environment_id
+  
+  # Properties for the Flink statement
+  properties = {
+    "execution.checkpointing.interval" = "60s"
+    "execution.checkpointing.mode"     = "EXACTLY_ONCE"
+    "execution.runtime-mode"           = "STREAMING"
+  }
+  
+  depends_on = [confluent_flink_artifact.custom_tax_udf]
+}
+
+# Output the artifact ID for reference
+output "artifact_id" {
+  description = "The ID of the deployed Flink artifact"
+  value       = confluent_flink_artifact.custom_tax_udf.id
+}
+
+# Output the statement ID for reference
+output "statement_id" {
+  description = "The ID of the deployed Flink statement"
+  value       = confluent_flink_statement.custom_tax_demo.id
+}
