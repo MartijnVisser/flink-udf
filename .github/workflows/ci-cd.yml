@@ -71,26 +71,26 @@ jobs:
       run: terraform validate
       working-directory: terraform/
       
-        - name: Create Terraform variables file
-          run: |
-            cat > terraform.tfvars << EOF
-            cloud_provider = "${{ vars.CLOUD_PROVIDER || 'aws' }}"
-            region = "${{ vars.REGION || 'eu-west-1' }}"
-            artifact_version = "${{ vars.ARTIFACT_VERSION || '1.0.0' }}"
-            current_catalog = "${{ vars.CURRENT_CATALOG || 'mvisser' }}"
-            current_database = "${{ vars.CURRENT_DATABASE || 'standard_cluster' }}"
-            flink_rest_endpoint = "${{ vars.FLINK_REST_ENDPOINT || '' }}"
-            organization_id = "${{ vars.ORGANIZATION_ID }}"
-            environment_id = "${{ vars.ENVIRONMENT_ID }}"
-            compute_pool_id = "${{ vars.COMPUTE_POOL_ID }}"
-            confluent_cloud_api_key = "${{ secrets.CONFLUENT_CLOUD_API_KEY }}"
-            confluent_cloud_api_secret = "${{ secrets.CONFLUENT_CLOUD_API_SECRET }}"
-            flink_api_key = "${{ secrets.FLINK_API_KEY }}"
-            flink_api_secret = "${{ secrets.FLINK_API_SECRET }}"
-            artifact_api_key = "${{ secrets.ARTIFACT_API_KEY }}"
-            artifact_api_secret = "${{ secrets.ARTIFACT_API_SECRET }}"
-            EOF
-          working-directory: terraform/
+    - name: Create Terraform variables file
+      run: |
+        cat > terraform.tfvars << EOF
+        cloud_provider = "${{ vars.CLOUD_PROVIDER || 'aws' }}"
+        region = "${{ vars.REGION || 'eu-west-1' }}"
+        artifact_version = "${{ vars.ARTIFACT_VERSION || '1.0.0' }}"
+        current_catalog = "${{ vars.CURRENT_CATALOG || 'mvisser' }}"
+        current_database = "${{ vars.CURRENT_DATABASE || 'standard_cluster' }}"
+        flink_rest_endpoint = "${{ vars.FLINK_REST_ENDPOINT || '' }}"
+        organization_id = "${{ vars.ORGANIZATION_ID }}"
+        environment_id = "${{ vars.ENVIRONMENT_ID }}"
+        compute_pool_id = "${{ vars.COMPUTE_POOL_ID }}"
+        confluent_cloud_api_key = "${{ secrets.CONFLUENT_CLOUD_API_KEY }}"
+        confluent_cloud_api_secret = "${{ secrets.CONFLUENT_CLOUD_API_SECRET }}"
+        flink_api_key = "${{ secrets.FLINK_API_KEY }}"
+        flink_api_secret = "${{ secrets.FLINK_API_SECRET }}"
+        artifact_api_key = "${{ secrets.ARTIFACT_API_KEY }}"
+        artifact_api_secret = "${{ secrets.ARTIFACT_API_SECRET }}"
+        EOF
+      working-directory: terraform/
       
     - name: Terraform Plan
       run: terraform plan
