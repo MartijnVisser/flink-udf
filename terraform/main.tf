@@ -130,6 +130,9 @@ locals {
 
 # Register the UDF function
 resource "confluent_flink_statement" "create_function" {
+  organization {
+    id = var.organization_id
+  }
   environment {
     id = var.environment_id
   }
@@ -156,6 +159,9 @@ resource "confluent_flink_statement" "create_function" {
 
 # Deploy the Flink SQL statement
 resource "confluent_flink_statement" "custom_tax_demo" {
+  organization {
+    id = var.organization_id
+  }
   environment {
     id = var.environment_id
   }
