@@ -108,10 +108,8 @@ resource "confluent_flink_statement" "custom_tax_demo" {
   compute_pool {
     id = var.compute_pool_id
   }
-  name        = "CustomTax Demo Statement"
-  description = "Flink SQL statement demonstrating the CustomTax UDF"
-  statement   = file("${path.module}/../sql/custom_tax_demo.sql")
-
+  statement = file("${path.module}/../sql/custom_tax_demo.sql")
+  
   depends_on = [confluent_flink_artifact.custom_tax_udf]
 }
 
