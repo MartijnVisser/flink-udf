@@ -71,6 +71,12 @@ variable "cloud_provider" {
   default     = "aws"
 }
 
+variable "region" {
+  description = "Cloud region (e.g., eu-west-1)"
+  type        = string
+  default     = "eu-west-1"
+}
+
 variable "artifact_version" {
   description = "Version of the UDF artifact"
   type        = string
